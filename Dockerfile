@@ -1,15 +1,69 @@
 # Build from Python slim
-FROM python:3.11
+FROM --platform=linux/arm64 python:3.11 AS builder
 
 # Install required packages while keeping the image small
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg  && rm -rf /var/lib/apt/lists/*
-
 # Import all scripts
+WORKDIR /app
 COPY . ./
 
-# Install required Python packages
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Install project dependencies and package
+RUN pip install  -r requirements.txt
 
-# Add entry point to run the script
-ENTRYPOINT [ "python3" ]
-CMD [ "-m", "birdnet_analyzer.analyze" ]
+# Install PyInstaller
+RUN pip install pyinstaller
+
+# Build executable
+RUN pyinstaller \
+    --onefile \
+    --name birdnet_analyzer \
+    $(python -c "import birdnet_analyzer; print(birdnet_analyzer.__file__)")
+
+# -----------------------------------------
+# Runtime stage (optional - minimal output)
+FROM --platform=linux/arm64 alpine:3.21
+
+# Copy only the compiled binary
+COPY --from=builder /app/dist/birdnet_analyzer /usr/local/bin/birdnet_analyzer/
+
+# Verify execution
+CMD ["birdnet_analyzer", "--help"]
+
+
+# # Build stage
+# FROM python:3.11-alpine AS builder
+
+# # Install build dependencies
+# RUN apk add --no-cache \
+#     build-base \
+#     libffi-dev \
+#     openssl-dev
+
+# # Install packaging tools
+# RUN pip install --upgrade pip setuptools wheel
+
+# # Copy project files
+# WORKDIR /app
+# COPY . .
+
+# # Install project dependencies and package
+# RUN pip install --user .
+
+# # Install PyInstaller
+# RUN pip install --user pyinstaller
+
+# # Build executable
+# RUN pyinstaller \
+#     --onefile \
+#     --name birdnet_analyzer \
+#     $(python -c "import birdnet_analyzer; print(birdnet_analyzer.__file__)")
+
+# # -----------------------------------------
+# # Runtime stage (optional - minimal output)
+# FROM alpine:3.21
+
+# # Copy only the compiled binary
+# COPY --from=builder /app/dist/birdnet_analyzer /usr/local/bin/birdnet_analyzer/
+
+# # Verify execution
+# CMD ["birdnet_analyzer", "--help"]

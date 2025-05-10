@@ -27,12 +27,12 @@ def start_server(host="0.0.0.0", port=8080, spath="uploads/", threads=1, locale=
     """
     import bottle
 
-    import birdnet_analyzer.analyze.utils as analyze
+    from birdnet_analyzer.analyze import utils as analyze_utils
 
     utils.ensure_model_exists()
 
     # Load eBird codes, labels
-    cfg.CODES = analyze.load_codes()
+    cfg.CODES = analyze_utils.load_codes()
     cfg.LABELS = utils.read_lines(cfg.LABELS_FILE)
 
     # Load translated labels
