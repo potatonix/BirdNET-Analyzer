@@ -6,6 +6,7 @@ from multiprocessing import freeze_support
 import birdnet_analyzer.config as cfg
 from birdnet_analyzer import cli, utils
 
+import birdnet_analyzer.network.utils
 
 def start_server(host="0.0.0.0", port=8080, spath="uploads/", threads=1, locale="en"):
     """
@@ -64,7 +65,8 @@ def start_server(host="0.0.0.0", port=8080, spath="uploads/", threads=1, locale=
     print(f"UP AND RUNNING! LISTENING ON {host}:{port}", flush=True)
 
     try:
-        bottle.run(host=host, port=port, quiet=True)
+        print(bottle.default_app().routes)
+        bottle.run(host=host, port=port, quiet=False)
     finally:
         shutil.rmtree(cfg.OUTPUT_PATH)
 

@@ -101,7 +101,7 @@ def analyze_file(item, db: sqlite_usearch_impl.SQLiteUsearchDB):
 
     except Exception as ex:
         # Write error log
-        print(f"Error: Cannot analyze audio file {fpath}.", flush=True)
+        print(f"Error: Cannot analyze audio file {fpath} - :> {ex}.", flush=True)
         utils.write_error_log(ex)
 
         return

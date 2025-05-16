@@ -1,7 +1,8 @@
+import bottle
 import os
 from typing import Literal
 
-
+@bottle.route("/analyze", method="POST")
 def analyze(
     audio_input: str,
     output: str | None = None,

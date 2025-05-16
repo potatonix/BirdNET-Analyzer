@@ -670,7 +670,7 @@ def analyze_file(item):
 
     except Exception as ex:
         # Write error log
-        print(f"Error: Cannot analyze audio file {fpath}.\n", flush=True)
+        print(f"Error: Cannot analyze audio file {fpath} - :P {ex} \n", flush=True)
         utils.write_error_log(ex)
 
         return None

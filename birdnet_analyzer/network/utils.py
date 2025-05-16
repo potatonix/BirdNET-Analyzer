@@ -11,7 +11,9 @@ from datetime import date, datetime
 import bottle
 
 import birdnet_analyzer.config as cfg
-from birdnet_analyzer import analyze, species, utils
+from birdnet_analyzer import utils
+from birdnet_analyzer.analyze.utils import analyze_file
+from birdnet_analyzer.species.utils import get_species_list
 
 
 def result_pooling(lines: list[str], num_results=5, pmode="avg"):
@@ -102,7 +104,8 @@ def handle_request():
             else:
                 save_path = ""
                 file_path_tmp = tempfile.mkstemp(suffix=ext.lower(), dir=cfg.OUTPUT_PATH)
-                file_path = file_path_tmp.name
+                print(file_path_tmp)
+                file_path = file_path_tmp[1]
 
             upload.save(file_path, overwrite=True)
         else:
@@ -137,7 +140,7 @@ def handle_request():
         # Set species list
         if cfg.LATITUDE != -1 and cfg.LONGITUDE != -1:
             cfg.SPECIES_LIST_FILE = None
-            cfg.SPECIES_LIST = species.get_species_list(
+            cfg.SPECIES_LIST = get_species_list(
                 cfg.LATITUDE, cfg.LONGITUDE, cfg.WEEK, cfg.LOCATION_FILTER_THRESHOLD
             )
         else:
@@ -145,7 +148,7 @@ def handle_request():
             cfg.SPECIES_LIST = []
 
         # Analyze file
-        success = analyze.analyze_file((file_path, cfg.get_config()))
+        success = analyze_file((file_path, cfg.get_config()))
 
         # Parse results
         if success:
@@ -179,7 +182,7 @@ def handle_request():
 
     except Exception as e:
         # Write error log
-        print(f"Error: Cannot analyze file {file_path}.", flush=True)
+        print(f"Error: Cannot analyze file {file_path} - :((( {e}", flush=True)
         utils.write_error_log(e)
 
         data = {"msg": f"Error during analysis: {e}"}
@@ -187,4 +190,4 @@ def handle_request():
         return json.dumps(data)
     finally:
         if file_path_tmp:
-            os.unlink(file_path_tmp.name)
+            os.unlink(file_path_tmp[1])
