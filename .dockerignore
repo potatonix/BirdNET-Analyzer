@@ -1,2 +1,4 @@
 Dockerfile
-venv
+bin
+lib
+birdnet_analyzer.egg-info

@@ -1,18 +1,18 @@
 # Build from Python slim
-FROM --platform=linux/arm64 python:3.11 AS builder
+FROM --platform=linux/arm64 python:3.12
 
 # Install required packages while keeping the image small
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg  && rm -rf /var/lib/apt/lists/*
 
 # Import all scripts
-WORKDIR /app
-COPY birdnet_analyzer requirements.txt pyproject.toml ./
+COPY . .
 
 # Install project dependencies and package
 RUN pip install -r requirements.txt
+RUN pip install .
 
 # Verify execution
-CMD ["python3", "-m", "birdnet_analyzer.network.server", "--threads=8"]
+CMD ["python3", "-m", "birdnet_analyzer.network.server"]
 
 # # Install PyInstaller
 # RUN pip install pyinstaller
